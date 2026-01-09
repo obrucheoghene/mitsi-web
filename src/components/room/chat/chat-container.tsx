@@ -1,5 +1,7 @@
-import { SendHorizonal } from 'lucide-react';
+import { SendHorizonal, Smile } from 'lucide-react';
 import { useState, type KeyboardEvent } from 'react';
+import EmojiPicker, { Theme, type EmojiClickData } from 'emoji-picker-react';
+
 import { v4 as uuidv4 } from 'uuid';
 
 import { Assets } from '@/assets';
@@ -23,6 +25,7 @@ const ChatContainer = () => {
   const [message, setMessage] = useState('');
   const chats = useChats();
   const chatActions = useChatActions();
+  const [showPicker, setShowPicker] = useState(false);
 
   const handleSendChat = async () => {
     if (!signalingService || !peerMe || !message.length) return;
@@ -48,6 +51,11 @@ const ChatContainer = () => {
       event.preventDefault();
       handleSendChat();
     }
+  };
+
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    setMessage(prev => prev + emojiData.emoji);
+    setShowPicker(false);
   };
 
   return (
@@ -94,7 +102,12 @@ const ChatContainer = () => {
             placeholder="Send a message..."
             onKeyDown={handleOnKeyPress}
           />
-          {/* <Smile /> */}
+          <Smile onClick={() => setShowPicker(!showPicker)} />
+          {showPicker && (
+            <div style={{ position: 'absolute', bottom: '50px' }}>
+              <EmojiPicker theme={Theme.DARK} onEmojiClick={handleEmojiClick} />
+            </div>
+          )}
           <SendHorizonal className="cursor-pointer " onClick={handleSendChat} />
         </div>
       </div>
