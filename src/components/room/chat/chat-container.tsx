@@ -1,4 +1,4 @@
-import { SendHorizonal, Smile } from 'lucide-react';
+import { SendHorizonal } from 'lucide-react';
 import { useState, type KeyboardEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -94,7 +94,7 @@ const ChatContainer = () => {
             placeholder="Send a message..."
             onKeyDown={handleOnKeyPress}
           />
-          <Smile />
+          {/* <Smile /> */}
           <SendHorizonal className="cursor-pointer " onClick={handleSendChat} />
         </div>
       </div>
