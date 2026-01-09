@@ -1,7 +1,7 @@
 import { Typography } from '@/components/typography';
-import { Button } from '@/components/ui/button';
+// import { Button } from '@/components/ui/button';
 import { usePeerOthersById } from '@/store/conf/hooks';
-import { Mic, MoreVertical } from 'lucide-react';
+// import { Mic, MoreVertical } from 'lucide-react';
 
 const ParticipantItem = ({ peerId }: { peerId: string }) => {
   const peerData = usePeerOthersById(peerId);
@@ -11,12 +11,12 @@ const ParticipantItem = ({ peerId }: { peerId: string }) => {
       <div className=" flex-1">
         <Typography variant="body-2">{peerData.name}</Typography>
       </div>
-      <Button className=" bg-gray-700/90 rounded-full aspect-square h-8">
+      {/* <Button className=" bg-gray-700/90 rounded-full aspect-square h-8">
         <Mic className="text-white" />
       </Button>
       <span className=" bg-transparent text-white">
         <MoreVertical size={24} />
-      </span>
+      </span> */}
     </div>
   );
 };

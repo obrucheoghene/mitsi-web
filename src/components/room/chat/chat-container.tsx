@@ -1,4 +1,4 @@
-import { ChevronRightIcon, SendHorizonal, Smile, Users } from 'lucide-react';
+import { SendHorizonal, Smile } from 'lucide-react';
 import { useState, type KeyboardEvent } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 
@@ -78,14 +78,14 @@ const ChatContainer = () => {
       )}
       {/* input */}
       <div className=" flex flex-col gap-2">
-        <div className=" flex items-center text-xs gap-1 cursor-pointer">
+        {/* <div className=" flex items-center text-xs gap-1 cursor-pointer">
           <span>To</span>
           <div className="text-xs h-5 px-2 gap-1 flex bg-blue-500 rounded-sm items-center">
             <Users size={12} />
             <span>Everyone</span>
             <ChevronRightIcon size={12} />
           </div>
-        </div>
+        </div> */}
         <div className=" h-12 flex items-center gap-2  bg-gray-700/40  p-2 rounded-md ">
           <textarea
             value={message}
