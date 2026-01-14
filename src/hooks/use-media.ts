@@ -1,5 +1,5 @@
 import { types as mediasoupTypes } from 'mediasoup-client';
-import { useCallback } from 'react';
+import { useCallback, useEffect } from 'react';
 import {
   Access,
   type ConsumerStateData,
@@ -11,9 +11,11 @@ import { useServices } from './use-services';
 import {
   useCameraActions,
   useCameraDeviceId,
+  useCameraDevices,
   useCameraOn,
   useMicActions,
   useMicDeviceId,
+  useMicDevices,
   useMicOn,
   usePeerActions,
   useRoomAccess,
@@ -34,11 +36,84 @@ export const useMedia = () => {
   const micActions = useMicActions();
   const micOn = useMicOn();
   const micDeviceId = useMicDeviceId();
+  const micDevices = useMicDevices();
   const cameraActions = useCameraActions();
   const cameraDeviceId = useCameraDeviceId();
+  const cameraDevices = useCameraDevices();
   const cameraOn = useCameraOn();
   const screenOn = useScreenOn();
   const screenActions = useScreenActions();
+
+  // Listen for device changes (devices added or removed)
+  useEffect(() => {
+    const handleDeviceChange = async () => {
+      try {
+        const devices = await navigator.mediaDevices.enumerateDevices();
+        const audioInputDevices = devices.filter(
+          device => device.kind === 'audioinput'
+        );
+        const videoInputDevices = devices.filter(
+          device => device.kind === 'videoinput'
+        );
+
+        // Update device lists in store
+        micActions.setDevices(audioInputDevices);
+        cameraActions.setDevices(videoInputDevices);
+
+        // Check if currently selected mic device still exists
+        if (micDeviceId) {
+          const micStillExists = audioInputDevices.some(
+            device => device.deviceId === micDeviceId
+          );
+          if (!micStillExists) {
+            // Select first available device or null if none
+            const newDeviceId = audioInputDevices.length
+              ? audioInputDevices[0].deviceId
+              : null;
+            micActions.setDeviceId(newDeviceId);
+          }
+        }
+
+        // Check if currently selected camera device still exists
+        if (cameraDeviceId) {
+          const cameraStillExists = videoInputDevices.some(
+            device => device.deviceId === cameraDeviceId
+          );
+          if (!cameraStillExists) {
+            // Select first available device or null if none
+            const newDeviceId = videoInputDevices.length
+              ? videoInputDevices[0].deviceId
+              : null;
+            cameraActions.setDeviceId(newDeviceId);
+          }
+        }
+      } catch (error) {
+        console.error('Error handling device change:', error);
+      }
+    };
+
+    // Only add listener if mediaDevices API is available
+    if (navigator.mediaDevices?.addEventListener) {
+      navigator.mediaDevices.addEventListener(
+        'devicechange',
+        handleDeviceChange
+      );
+
+      return () => {
+        navigator.mediaDevices.removeEventListener(
+          'devicechange',
+          handleDeviceChange
+        );
+      };
+    }
+  }, [
+    micDeviceId,
+    cameraDeviceId,
+    micDevices,
+    cameraDevices,
+    micActions,
+    cameraActions,
+  ]);
 
   const createProducer = useCallback(
     async (source: ProducerSource, appData?: mediasoupTypes.AppData) => {
