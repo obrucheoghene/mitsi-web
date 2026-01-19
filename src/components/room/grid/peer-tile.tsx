@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState, memo } from 'react';
 import { Hand, Mic, MicOff } from 'lucide-react';
 import type { Layout } from '@/types';
 import { cn, getInitials } from '@/lib/utils';
@@ -6,19 +6,50 @@ import {
   usePeerConditionsById,
   usePeerMediasById,
   usePeerOthersById,
+  useIsSpeaking,
 } from '@/store/conf/hooks';
 import { useMedia } from '@/hooks/use-media';
+import { useViewportQuality } from '@/hooks/use-viewport-quality';
 
 interface PeerTileProps {
   peerId: string;
   layout: Layout;
 }
 export const PeerTile: React.FC<PeerTileProps> = ({ peerId, layout }) => {
-  const { getConsumer } = useMedia();
+  const { getConsumer, setConsumerQuality } = useMedia();
   const videoRef = useRef<HTMLVideoElement>(null);
+  const tileRef = useRef<HTMLDivElement>(null);
+  const [isVisible, setIsVisible] = useState(true);
+
   const peerData = usePeerOthersById(peerId);
   const media = usePeerMediasById(peerId);
   const peerCondition = usePeerConditionsById(peerId);
+  const isSpeaking = useIsSpeaking(peerId);
+
+  // Intersection observer for viewport visibility
+  useEffect(() => {
+    if (!tileRef.current) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.1 } // Consider visible if 10% is showing
+    );
+
+    observer.observe(tileRef.current);
+
+    return () => observer.disconnect();
+  }, []);
+
+  // Apply quality based on viewport visibility and speaking status
+  useViewportQuality({
+    peerId: peerData?.id,
+    source: 'camera',
+    setConsumerQuality,
+    isVisible,
+    isActiveSpeaker: isSpeaking,
+  });
 
   useEffect(() => {
     if (!media?.camera || !videoRef.current) return;
@@ -39,10 +70,11 @@ export const PeerTile: React.FC<PeerTileProps> = ({ peerId, layout }) => {
 
   return (
     <div
+      ref={tileRef}
       className={cn(
-        `bg-linear-to-br from-white/5 to-white/2 border  border-white/10 backdrop-blur-xl 
+        `bg-linear-to-br from-white/5 to-white/2 border  border-white/10 backdrop-blur-xl
         rounded-lg overflow-hidden flex items-center relative transition-all duration-300 ease-in-out`,
-        peerCondition?.isSpeaking && ' border-blue-500'
+        isSpeaking && ' border-blue-500'
       )}
       style={{ width: `${layout.width}px`, height: `${layout.height}px` }}
     >
@@ -89,3 +121,12 @@ export const PeerTile: React.FC<PeerTileProps> = ({ peerId, layout }) => {
     </div>
   );
 };
+
+// Memoize component with custom comparison for optimal re-render control
+export const MemoizedPeerTile = memo(PeerTile, (prevProps, nextProps) => {
+  return (
+    prevProps.peerId === nextProps.peerId &&
+    prevProps.layout.width === nextProps.layout.width &&
+    prevProps.layout.height === nextProps.layout.height
+  );
+});

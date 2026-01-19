@@ -59,6 +59,18 @@ export const usePeerSelectedId = () =>
   useConfStore(state => state.peers.selectedId);
 export const usePeerOthersById = (id: string) =>
   useConfStore(state => state.peers.others[id]);
+
+// Optimized: Direct access to peerIds Set (O(1))
+export const usePeerIds = () => {
+  const peerIds = useConfStore(state => state.peers.peerIds);
+  return useMemo(() => Array.from(peerIds), [peerIds]);
+};
+
+// Optimized: Direct count from Set size
+export const usePeerCount = () =>
+  useConfStore(state => state.peers.peerIds.size + 1); // +1 for me
+
+// Legacy hooks (kept for backward compatibility, but prefer usePeerIds)
 export const usePeerOthersKeys = () => {
   const peerOthers = usePeerOthers();
   return useMemo(() => {
@@ -242,6 +254,23 @@ export const useFullscreenActions = () =>
   useMemo(
     () => ({
       set: useConfStore.getState().fullscreen.set,
+    }),
+    []
+  );
+
+// ============================================================================
+// SPEAKING SELECTORS
+// ============================================================================
+export const useSpeakingState = () =>
+  useConfStore(state => state.speaking?.speaking ?? {});
+export const useIsSpeaking = (peerId: string) =>
+  useConfStore(state => state.speaking?.speaking?.[peerId] ?? false);
+export const useSpeakingActions = () =>
+  useMemo(
+    () => ({
+      setSpeaking: useConfStore.getState().speaking?.setSpeaking,
+      clearSpeaking: useConfStore.getState().speaking?.clearSpeaking,
+      clearAllSpeaking: useConfStore.getState().speaking?.clearAllSpeaking,
     }),
     []
   );

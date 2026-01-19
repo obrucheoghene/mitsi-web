@@ -1,5 +1,5 @@
 import { types as mediasoupTypes } from 'mediasoup-client';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import {
   Access,
   type ConsumerStateData,
@@ -8,6 +8,7 @@ import {
   type ProducerSource,
 } from '@/types';
 import { useServices } from './use-services';
+import { QualityManager, QualityLevel } from '@/services/quality-manager';
 import {
   useCameraActions,
   useCameraDeviceId,
@@ -43,6 +44,19 @@ export const useMedia = () => {
   const cameraOn = useCameraOn();
   const screenOn = useScreenOn();
   const screenActions = useScreenActions();
+
+  // Initialize Quality Manager for bandwidth optimization
+  const qualityManager = useMemo(() => {
+    if (!mediaService) return null;
+    return new QualityManager(mediaService);
+  }, [mediaService]);
+
+  // Cleanup quality manager on unmount
+  useEffect(() => {
+    return () => {
+      qualityManager?.clear();
+    };
+  }, [qualityManager]);
 
   // Listen for device changes (devices added or removed)
   useEffect(() => {
@@ -171,9 +185,21 @@ export const useMedia = () => {
         peerActions.addScreen(producerPeerId);
       }
 
+      // Set initial quality to MEDIUM for all video consumers
+      if (
+        qualityManager &&
+        (producerSource === 'camera' || producerSource === 'screen')
+      ) {
+        await qualityManager.setConsumerQuality(
+          producerPeerId,
+          producerSource,
+          QualityLevel.MEDIUM
+        );
+      }
+
       // console.log("create consumer --- source", producerSource)
     },
-    [mediaService, peerActions]
+    [mediaService, peerActions, qualityManager]
   );
 
   const pauseConsumer = useCallback(
@@ -531,5 +557,10 @@ export const useMedia = () => {
     toggleCamera,
     toggleMic,
     toggleScreen,
+    qualityManager,
+    setConsumerQuality: qualityManager?.setConsumerQuality.bind(qualityManager),
   };
 };
+
+// Re-export QualityLevel for convenience
+export { QualityLevel };
