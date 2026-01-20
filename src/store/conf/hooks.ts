@@ -274,3 +274,16 @@ export const useSpeakingActions = () =>
     }),
     []
   );
+
+// ============================================================================
+// LAYOUT SELECTORS
+// ============================================================================
+export const useLayoutMode = () => useConfStore(state => state.layout.mode);
+export const useLayoutActions = () =>
+  useMemo(
+    () => ({
+      setMode: useConfStore.getState().layout.setMode,
+      toggleMode: useConfStore.getState().layout.toggleMode,
+    }),
+    []
+  );

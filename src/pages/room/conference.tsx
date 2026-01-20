@@ -6,6 +6,8 @@ import PeerAudioList from '@/components/room/peer-audio-list';
 import Display from '@/components/room/display';
 import DynamicBg from '@/components/dynamic-bg';
 import ReactionDisplay from '@/components/room/reaction-display';
+import ConnectionQualityManager from '@/components/room/connection-quality-manager';
+import PerformanceMonitor from '@/components/room/debug/performance-monitor';
 
 export const Conference: React.FC = () => {
   return (
@@ -20,6 +22,10 @@ export const Conference: React.FC = () => {
         <ControlBar />
         <PeerAudioList />
         <ReactionDisplay />
+
+        {/* Background Services */}
+        <ConnectionQualityManager />
+        <PerformanceMonitor />
       </div>
     </div>
   );

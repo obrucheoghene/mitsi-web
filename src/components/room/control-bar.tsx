@@ -7,6 +7,7 @@ import Chat from './chat/chat';
 import Users from './users';
 import Menu from './menu';
 import Screen from './screen';
+import LayoutToggle from './layout-toggle';
 
 const ControlBar = () => {
   return (
@@ -26,6 +27,7 @@ const ControlBar = () => {
 
         {/* Center Controls */}
         <div className="hidden md:flex items-center gap-2">
+          <LayoutToggle />
           <Hand />
           <Emoji />
           {/* Leave Call */}

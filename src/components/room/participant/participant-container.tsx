@@ -2,14 +2,20 @@ import { cn } from '@/lib/utils';
 import {
   useModalParticipantsOpen,
   usePeerOthersKeys,
+  usePeerCount,
 } from '@/store/conf/hooks';
 import { Search } from 'lucide-react';
 import ParticipantItem from './participant-item';
 import MyParticipantItem from './my-participant-item';
+import VirtualParticipantList from './virtual-participant-list';
+
+const VIRTUAL_SCROLL_THRESHOLD = 50; // Use virtual scrolling for 50+ participants
 
 const ParticipantContainer = () => {
   const participantsOpen = useModalParticipantsOpen();
   const peerOtherIds = usePeerOthersKeys();
+  const peerCount = usePeerCount();
+  const useVirtualScrolling = peerCount > VIRTUAL_SCROLL_THRESHOLD;
 
   return (
     <div
@@ -27,9 +33,11 @@ const ParticipantContainer = () => {
       </div>
       <div className=" flex flex-col gap-3 overflow-y-auto h-full  ">
         <MyParticipantItem />
-        {peerOtherIds.map(id => (
-          <ParticipantItem key={id} peerId={id} />
-        ))}
+        {useVirtualScrolling ? (
+          <VirtualParticipantList />
+        ) : (
+          peerOtherIds.map(id => <ParticipantItem key={id} peerId={id} />)
+        )}
       </div>
     </div>
   );

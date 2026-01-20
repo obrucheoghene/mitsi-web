@@ -17,6 +17,7 @@ import { createHandSlice } from './slices/hand-slice';
 import { createCautionSlice } from './slices/caution-slice';
 import { createFullscreenSlice } from './slices/fullscreen-slice';
 import { createSpeakingSlice } from './slices/speaking-slice';
+import { createLayoutSlice } from './slices/layout-slice';
 
 // Enable Immer plugin for Map and Set support
 enableMapSet();
@@ -38,6 +39,7 @@ export const useConfStore = create<ConfStoreState>()(
       caution: createCautionSlice(set, get, api),
       fullscreen: createFullscreenSlice(set, get, api),
       speaking: createSpeakingSlice(set, get, api),
+      layout: createLayoutSlice(set, get, api),
     })),
     { name: 'conf-store' }
   )
