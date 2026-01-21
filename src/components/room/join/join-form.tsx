@@ -21,7 +21,7 @@ import { Actions } from '@/types/actions';
 import { Button } from '../../ui/button';
 import { Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-// import { useEffect } from 'react';
+import { useEffect } from 'react';
 
 const FormValues = z.object({
   name: z
@@ -79,6 +79,18 @@ const JoinForm = () => {
       }
     }
   };
+
+  // Auto-join logic for load testing
+  useEffect(() => {
+    const config = (window as any).mitsiConfig;
+    if (config?.autoJoin && config?.userName && signalingService && roomData) {
+      form.setValue('name', config.userName);
+      // Trigger join after a short delay to ensure everything is initialized
+      setTimeout(() => {
+        onSubmit({ name: config.userName });
+      }, 1000);
+    }
+  }, [signalingService, roomData]);
 
   return (
     <Form {...form}>

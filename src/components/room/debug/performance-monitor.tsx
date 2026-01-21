@@ -140,7 +140,9 @@ const PerformanceMonitor = () => {
             <Activity className="w-4 h-4 text-white/50" />
             <span className="text-sm text-white/70">FPS</span>
           </div>
-          <span className={`text-sm font-mono font-bold ${getFpsColor(metrics.fps)}`}>
+          <span
+            className={`text-sm font-mono font-bold ${getFpsColor(metrics.fps)}`}
+          >
             {metrics.fps}
           </span>
         </div>
@@ -196,19 +198,25 @@ const PerformanceMonitor = () => {
         <div className="text-xs text-white/50 space-y-1">
           <div className="flex justify-between">
             <span>Packet Loss:</span>
-            <span className={connectionStats.packetLoss > 3 ? 'text-red-400' : ''}>
+            <span
+              className={connectionStats.packetLoss > 3 ? 'text-red-400' : ''}
+            >
               {connectionStats.packetLoss.toFixed(2)}%
             </span>
           </div>
           <div className="flex justify-between">
             <span>Jitter:</span>
-            <span className={connectionStats.jitter > 50 ? 'text-yellow-400' : ''}>
+            <span
+              className={connectionStats.jitter > 50 ? 'text-yellow-400' : ''}
+            >
               {connectionStats.jitter.toFixed(1)}ms
             </span>
           </div>
           <div className="flex justify-between">
             <span>RTT:</span>
-            <span className={connectionStats.rtt > 200 ? 'text-yellow-400' : ''}>
+            <span
+              className={connectionStats.rtt > 200 ? 'text-yellow-400' : ''}
+            >
               {connectionStats.rtt.toFixed(1)}ms
             </span>
           </div>
