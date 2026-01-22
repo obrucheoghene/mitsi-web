@@ -7,7 +7,7 @@ import Display from '@/components/room/display';
 import DynamicBg from '@/components/dynamic-bg';
 import ReactionDisplay from '@/components/room/reaction-display';
 import ConnectionQualityManager from '@/components/room/connection-quality-manager';
-import PerformanceMonitor from '@/components/room/debug/performance-monitor';
+// import PerformanceMonitor from '@/components/room/debug/performance-monitor';
 
 export const Conference: React.FC = () => {
   return (
@@ -25,7 +25,7 @@ export const Conference: React.FC = () => {
 
         {/* Background Services */}
         <ConnectionQualityManager />
-        <PerformanceMonitor />
+        {/* <PerformanceMonitor /> */}
       </div>
     </div>
   );

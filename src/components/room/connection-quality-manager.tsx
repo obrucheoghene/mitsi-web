@@ -71,12 +71,7 @@ const ConnectionQualityManager = () => {
         clearTimeout(adjustmentTimeout.current);
       }
     };
-  }, [
-    connectionStats,
-    setConsumerQuality,
-    peerIds,
-    activeSpeakers,
-  ]);
+  }, [connectionStats, setConsumerQuality, peerIds, activeSpeakers]);
 
   // This component doesn't render anything
   return null;
