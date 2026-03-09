@@ -43,7 +43,8 @@ const RoomProvider = ({ children }: { children: ReactNode }) => {
         else console.log(`no handler for for action ${action} args =>`, args);
       } catch (error) {
         console.log(error);
-        if (typeof callback === 'function') callback({ status: 'error', error });
+        if (typeof callback === 'function')
+          callback({ status: 'error', error });
       }
     };
 
