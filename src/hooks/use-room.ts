@@ -11,6 +11,7 @@ import {
 import { useCallback, useMemo, useRef } from 'react';
 import {
   Access,
+  Role,
   type AckCallbackData,
   type EmojiReaction,
   type PeerData,
@@ -21,6 +22,9 @@ import { useSignaling } from './use-signaling';
 import { useMedia } from './use-media';
 import { ValidationSchema } from '@/lib/schema';
 import { getPeerId } from '@/lib/utils';
+import { toast } from 'sonner';
+import { createElement } from 'react';
+import WaiterToast from '@/components/room/waiter-toast';
 
 export const useRoom = () => {
   const { signalingService } = useSignaling();
@@ -100,6 +104,25 @@ export const useRoom = () => {
     [signalingService, mediaService, roomAccess, peerActions, roomData?.roomId]
   );
 
+  const joinWaiters = useCallback(
+    async (peerData: PeerData): Promise<{ wasAParticipant: boolean }> => {
+      if (!signalingService || !roomData?.roomId)
+        return { wasAParticipant: false };
+      const result = await signalingService.sendMessage<{
+        wasAParticipant: boolean;
+      }>({
+        action: Actions.JoinWaiters,
+        args: {
+          roomId: roomData.roomId,
+          peerId: peerData.id,
+          peerData,
+        },
+      });
+      return { wasAParticipant: result?.wasAParticipant ?? false };
+    },
+    [signalingService, roomData?.roomId]
+  );
+
   const leaveRoom = useCallback(() => {
     if (!signalingService) return;
     signalingService.sendMessage({
@@ -170,7 +193,22 @@ export const useRoom = () => {
       // Host receives notification that a new waiter is waiting
       [Actions.WaiterAdded]: async args => {
         const waiter = args.waiter as PeerData;
-        if (waiter?.id) waitersActions.addWaiter(waiter);
+        if (!waiter?.id) return;
+        waitersActions.addWaiter(waiter);
+
+        // Only show the admit/decline popup to moderators
+        if (!peerMeRef.current?.roles?.includes(Role.Moderator)) return;
+
+        toast.custom(
+          t =>
+            createElement(WaiterToast, {
+              waiter,
+              toastId: t,
+              signalingService: signalingService!,
+              onRemoveWaiter: waitersActions.removeWaiter,
+            }),
+          { duration: Infinity, position: 'top-right' }
+        );
       },
 
       // Admin force-muted this peer
@@ -194,8 +232,9 @@ export const useRoom = () => {
       roomActions,
       waitersActions,
       pauseProducer,
+      signalingService,
     ]
   );
 
-  return { joinVisitors, joinRoom, leaveRoom, actionHandlers };
+  return { joinVisitors, joinWaiters, joinRoom, leaveRoom, actionHandlers };
 };
