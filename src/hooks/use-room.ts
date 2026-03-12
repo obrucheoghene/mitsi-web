@@ -167,7 +167,15 @@ export const useRoom = () => {
       },
       [Actions.SendChat]: async args => {
         const data = ValidationSchema.sendChat.parse(args);
-        chatActions.addChat(data);
+        if (data.isPrivate) {
+          // Determine the "other" peer: if I sent it, other is receiver; if I received it, other is sender
+          const myId = peerMeRef.current?.id;
+          const isMine = data.sender.id === myId;
+          const otherPeer = isMine ? data.receiver : data.sender;
+          if (otherPeer?.id) chatActions.addDmChat(otherPeer.id, data, isMine);
+        } else {
+          chatActions.addChat(data);
+        }
       },
 
       [Actions.SendReaction]: async args => {
@@ -178,6 +186,10 @@ export const useRoom = () => {
       [Actions.RaiseHand]: async args => {
         const data = ValidationSchema.raiseHand.parse(args);
         peerActions.updateCondition(data.peer.id, { hand: data.hand });
+      },
+
+      [Actions.RecordingChanged]: async args => {
+        roomActions.setRecording((args as { recording: boolean }).recording);
       },
 
       // Waiter is admitted by host — proceed to join the room

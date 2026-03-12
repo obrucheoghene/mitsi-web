@@ -44,6 +44,7 @@ export enum Actions {
   Declined = 'declined',
   WaiterAdded = 'waiter_added',
   Record = 'Record',
+  RecordingChanged = 'recording_changed',
 
   RemovePeer = 'remove_peer',
   AddRole = 'add_role',

@@ -128,6 +128,8 @@ export const useRoomReconnecting = () =>
   useConfStore(state => state.room.reconnecting);
 export const useRoomDisconnected = () =>
   useConfStore(state => state.room.disconnected);
+export const useRoomRecording = () =>
+  useConfStore(state => state.room.recording);
 export const useRoomActions = () =>
   useMemo(
     () => ({
@@ -137,6 +139,7 @@ export const useRoomActions = () =>
       setDisconnected: useConfStore.getState().room.setDisconnected,
       setGridDimensions: useConfStore.getState().room.setGridDimensions,
       setMaxPeerPerPage: useConfStore.getState().room.setMaxPeerPerPage,
+      setRecording: useConfStore.getState().room.setRecording,
     }),
     []
   );
@@ -179,10 +182,14 @@ export const useModalActions = () =>
 // ============================================================================
 
 export const useChats = () => useConfStore(state => state.chat.chats);
+export const useDmChats = () => useConfStore(state => state.chat.dmChats);
+export const useUnreadDm = () => useConfStore(state => state.chat.unreadDm);
 export const useChatActions = () =>
   useMemo(
     () => ({
       addChat: useConfStore.getState().chat.add,
+      addDmChat: useConfStore.getState().chat.addDmChat,
+      clearUnread: useConfStore.getState().chat.clearUnread,
     }),
     []
   );

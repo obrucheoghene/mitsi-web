@@ -36,8 +36,8 @@ export const useMetricsExposure = () => {
       const state = useConfStore.getState();
       (window as any).__mitsiPerformanceMetrics__ = {
         peersCount: Object.keys(state.peers.others).length,
-        activeSpeakers: state.speaking
-          ? Object.keys(state.speaking).filter(id => state.speaking[id]).length
+        activeSpeakers: state.speaking?.speaking
+          ? Object.keys(state.speaking.speaking).filter(id => state.speaking.speaking[id]).length
           : 0,
         memory:
           (performance as any).memory?.usedJSHeapSize / (1024 * 1024) || 0,
