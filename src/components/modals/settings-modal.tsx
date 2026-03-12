@@ -76,6 +76,30 @@ const DeviceSettings: FC<{
   const micDeviceId = useMicDeviceId();
   const micDevices = useMicDevices();
 
+  // Speaker output state — enumerate audiooutput devices
+  const [speakerDevices, setSpeakerDevices] = React.useState<MediaDeviceInfo[]>([]);
+  const [speakerDeviceId, setSpeakerDeviceId] = React.useState<string>('default');
+  const [sinkIdSupported] = React.useState(() => 'setSinkId' in HTMLMediaElement.prototype);
+
+  React.useEffect(() => {
+    if (!sinkIdSupported) return;
+    navigator.mediaDevices.enumerateDevices().then(devices => {
+      setSpeakerDevices(devices.filter(d => d.kind === 'audiooutput'));
+    });
+  }, [sinkIdSupported]);
+
+  const handleSpeakerChange = React.useCallback(
+    (deviceId: string) => {
+      setSpeakerDeviceId(deviceId);
+      // Apply to all audio elements in the page
+      document.querySelectorAll('audio, video').forEach(el => {
+        const media = el as HTMLMediaElement & { setSinkId?: (id: string) => Promise<void> };
+        media.setSinkId?.(deviceId);
+      });
+    },
+    []
+  );
+
   return (
     <div>
       <h3 className="text-white  md:text-xl font-semibold mb-8">
@@ -106,7 +130,7 @@ const DeviceSettings: FC<{
           source="mic"
         />
 
-        <div className=" items-center gap-3 hidden">
+        <div className="items-center gap-3 hidden">
           <Mic size={18} className="text-slate-400" />
           <input
             type="range"
@@ -120,23 +144,42 @@ const DeviceSettings: FC<{
       </div>
 
       {/* Speakers */}
-      <div className=" hidden">
-        <label className="block text-slate-300 text-sm font-medium mb-3">
-          Speakers
-        </label>
-        <div className="flex gap-3">
-          <button className="flex-1 bg-slate-800 hover:bg-slate-700 text-white rounded-lg px-4 py-3 flex items-center justify-between transition-colors">
-            <div className="flex items-center gap-3">
-              <Volume2 size={18} />
-              <span>Default - Macbook Pro...</span>
-            </div>
-            <span className="text-slate-400">›</span>
-          </button>
-          <button className="bg-slate-800 hover:bg-slate-700 text-white rounded-lg px-6 py-3 transition-colors">
-            Test
-          </button>
+      {sinkIdSupported && speakerDevices.length > 0 && (
+        <div className="mb-8">
+          <label className="block text-slate-300 text-sm font-medium mb-3">
+            Speakers
+          </label>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button className="w-full h-12 bg-slate-800 hover:bg-slate-700 text-white rounded-lg flex items-center justify-between transition-colors">
+                <div className="flex items-center gap-3">
+                  <Volume2 size={18} />
+                  <span className="text-xs sm:text-sm md:text-base">
+                    {speakerDevices.find(d => d.deviceId === speakerDeviceId)?.label || 'Default'}
+                  </span>
+                </div>
+                <span className="text-slate-400">›</span>
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-full bg-linear-to-bl from-slate-900 to-slate-800">
+              <DropdownMenuRadioGroup
+                value={speakerDeviceId}
+                onValueChange={handleSpeakerChange}
+              >
+                {speakerDevices.map(device => (
+                  <DropdownMenuRadioItem
+                    key={device.deviceId}
+                    value={device.deviceId}
+                    className="focus:bg-white/8"
+                  >
+                    {device.label}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
-      </div>
+      )}
     </div>
   );
 };

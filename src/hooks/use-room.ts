@@ -4,9 +4,11 @@ import {
   usePeerMe,
   useReactionsActions,
   useRoomAccess,
+  useRoomActions,
   useRoomData,
+  useWaitersActions,
 } from '@/store/conf/hooks';
-import { useCallback, useMemo } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import {
   Access,
   type AckCallbackData,
@@ -28,13 +30,22 @@ export const useRoom = () => {
     pauseConsumer,
     closeConsumer,
     resumeConsumer,
+    pauseProducer,
   } = useMedia();
   const peerActions = usePeerActions();
   const peerMe = usePeerMe();
   const roomData = useRoomData();
   const roomAccess = useRoomAccess();
+  const roomActions = useRoomActions();
   const chatActions = useChatActions();
   const reactionsActions = useReactionsActions();
+  const waitersActions = useWaitersActions();
+
+  // Use a ref so joinRoom can always read the latest peerMe without
+  // being recreated every time peerMe changes (which would cause
+  // room-provider's useEffect to re-run and re-join, closing existing peers).
+  const peerMeRef = useRef(peerMe);
+  peerMeRef.current = peerMe;
 
   const joinVisitors = useCallback(async () => {
     if (!signalingService || !roomData) return;
@@ -55,7 +66,7 @@ export const useRoom = () => {
   const joinRoom = useCallback(
     async (isRejoining?: boolean) => {
       if (roomAccess !== Access.Allowed) return;
-      if (!peerMe || !roomData?.roomId || !signalingService || !mediaService)
+      if (!peerMeRef.current || !roomData?.roomId || !signalingService || !mediaService)
         return;
       const result = await signalingService.sendMessage<{
         you: PeerData;
@@ -65,27 +76,28 @@ export const useRoom = () => {
         action: Actions.JoinRoom,
         args: {
           roomId: roomData.roomId,
-          peerData: peerMe,
+          peerData: peerMeRef.current,
           deviceRtpCapabilities: mediaService.getDeviceRtpCapabilities(),
           isRejoining,
         },
       });
 
+      // Update "me" with server-assigned tag/roles (host vs participant)
+      if (result?.you) {
+        peerActions.addData({ ...peerMeRef.current, ...result.you }, true);
+      }
+
       const peers = result?.peers;
       peerActions.clear();
       if (peers) {
-        console.log(peers);
         peerActions.addOthersData(peers);
       }
     },
-    [
-      peerMe,
-      signalingService,
-      mediaService,
-      roomAccess,
-      peerActions,
-      roomData?.roomId,
-    ]
+    // peerMe intentionally excluded — accessed via peerMeRef to avoid
+    // recreating this callback (and re-triggering room-provider's join effect)
+    // every time the server returns updated tag/roles for the current user.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [signalingService, mediaService, roomAccess, peerActions, roomData?.roomId]
   );
 
   const leaveRoom = useCallback(() => {
@@ -104,7 +116,6 @@ export const useRoom = () => {
     () => ({
       [Actions.PeerAdded]: async args => {
         const data = ValidationSchema.peerData.parse(args);
-
         peerActions.addData(data);
       },
 
@@ -145,6 +156,32 @@ export const useRoom = () => {
         const data = ValidationSchema.raiseHand.parse(args);
         peerActions.updateCondition(data.peer.id, { hand: data.hand });
       },
+
+      // Waiter is admitted by host — proceed to join the room
+      [Actions.Admitted]: async () => {
+        roomActions.setAccess(Access.Allowed);
+      },
+
+      // Waiter was declined by host
+      [Actions.Declined]: async () => {
+        roomActions.setAccess(Access.Declined);
+      },
+
+      // Host receives notification that a new waiter is waiting
+      [Actions.WaiterAdded]: async args => {
+        const waiter = args.waiter as PeerData;
+        if (waiter?.id) waitersActions.addWaiter(waiter);
+      },
+
+      // Admin force-muted this peer
+      [Actions.Mute]: async () => {
+        pauseProducer?.('mic');
+      },
+
+      // Admin forced camera off for this peer
+      [Actions.OffCamera]: async () => {
+        pauseProducer?.('camera');
+      },
     }),
     [
       closeConsumer,
@@ -154,6 +191,9 @@ export const useRoom = () => {
       resumeConsumer,
       chatActions,
       reactionsActions,
+      roomActions,
+      waitersActions,
+      pauseProducer,
     ]
   );
 

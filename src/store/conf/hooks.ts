@@ -287,3 +287,20 @@ export const useLayoutActions = () =>
     }),
     []
   );
+
+// ============================================================================
+// WAITERS SELECTORS
+// ============================================================================
+export const useWaiters = () => useConfStore(state => state.waiters.waiters);
+export const useWaiterCount = () =>
+  useConfStore(state => state.waiters.waiters.length);
+export const useWaitersActions = () =>
+  useMemo(
+    () => ({
+      setWaiters: useConfStore.getState().waiters.setWaiters,
+      addWaiter: useConfStore.getState().waiters.addWaiter,
+      removeWaiter: useConfStore.getState().waiters.removeWaiter,
+      clearWaiters: useConfStore.getState().waiters.clearWaiters,
+    }),
+    []
+  );

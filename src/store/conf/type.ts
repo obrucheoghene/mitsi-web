@@ -13,6 +13,7 @@ import type { CautionSlice } from './slices/caution-slice';
 import type { FullscreenSlice } from './slices/fullscreen-slice';
 import type { SpeakingSlice } from './slices/speaking-slice';
 import type { LayoutSlice } from './slices/layout-slice';
+import type { WaitersSlice } from './slices/waiters-slice';
 
 export interface ConfStoreState {
   mic: MicSlice;
@@ -30,4 +31,5 @@ export interface ConfStoreState {
   fullscreen: FullscreenSlice;
   speaking: SpeakingSlice;
   layout: LayoutSlice;
+  waiters: WaitersSlice;
 }

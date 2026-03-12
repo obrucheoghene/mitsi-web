@@ -8,6 +8,7 @@ import Users from './users';
 import Menu from './menu';
 import Screen from './screen';
 import LayoutToggle from './layout-toggle';
+import Record from './record';
 
 const ControlBar = () => {
   return (
@@ -30,6 +31,7 @@ const ControlBar = () => {
           <LayoutToggle />
           <Hand />
           <Emoji />
+          <Record />
           {/* Leave Call */}
           <End />
         </div>

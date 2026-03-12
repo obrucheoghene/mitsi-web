@@ -40,6 +40,9 @@ export enum Actions {
   GetWaiters = 'get_waiters',
   AdmitWaiters = 'admit_waiters',
   DeclineWaiters = 'decline_waiters',
+  Admitted = 'admitted',
+  Declined = 'declined',
+  WaiterAdded = 'waiter_added',
   Record = 'Record',
 
   RemovePeer = 'remove_peer',
