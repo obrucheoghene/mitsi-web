@@ -130,6 +130,8 @@ export const useRoomDisconnected = () =>
   useConfStore(state => state.room.disconnected);
 export const useRoomRecording = () =>
   useConfStore(state => state.room.recording);
+export const useRoomLocked = () =>
+  useConfStore(state => state.room.locked);
 export const useRoomActions = () =>
   useMemo(
     () => ({
@@ -140,6 +142,7 @@ export const useRoomActions = () =>
       setGridDimensions: useConfStore.getState().room.setGridDimensions,
       setMaxPeerPerPage: useConfStore.getState().room.setMaxPeerPerPage,
       setRecording: useConfStore.getState().room.setRecording,
+      setLocked: useConfStore.getState().room.setLocked,
     }),
     []
   );
@@ -201,12 +204,15 @@ export const useChatActions = () =>
 export const useSettingsOpen = () => useConfStore(state => state.settings.open);
 export const useSettingsNotification = () =>
   useConfStore(state => state.settings.notifications);
+export const useSettingsNoiseSuppression = () =>
+  useConfStore(state => state.settings.noiseSuppression);
 
 export const useSettingsActions = () =>
   useMemo(
     () => ({
       toggle: useConfStore.getState().settings.toggle,
       toggleNotification: useConfStore.getState().settings.toggleNotification,
+      toggleNoiseSuppression: useConfStore.getState().settings.toggleNoiseSuppression,
     }),
     []
   );

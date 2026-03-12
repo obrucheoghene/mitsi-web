@@ -12,6 +12,7 @@ import {
 } from '@/store/conf/hooks';
 import { useMedia } from '@/hooks/use-media';
 import { useViewportQuality } from '@/hooks/use-viewport-quality';
+import { useAudioLevel } from '@/hooks/use-audio-level';
 
 interface PeerTileProps {
   peerId: string;
@@ -30,6 +31,7 @@ export const PeerTile: React.FC<PeerTileProps> = ({ peerId, layout }) => {
   const selectedId = usePeerSelectedId();
   const peerActions = usePeerActions();
   const isPinned = selectedId === peerId;
+  const audioLevel = useAudioLevel(peerId);
 
   // Intersection observer for viewport visibility
   useEffect(() => {
@@ -133,6 +135,16 @@ export const PeerTile: React.FC<PeerTileProps> = ({ peerId, layout }) => {
         {peerCondition.hand?.raised && <Hand size={18} />}
         <span className="truncate"> {peerData.name}</span>
       </div>
+
+      {/* Audio level bar */}
+      {audioLevel > 0.02 && (
+        <div className="absolute bottom-0 left-0 right-0 h-0.5 z-20 bg-black/20">
+          <div
+            className="h-full bg-green-400 transition-all duration-75"
+            style={{ width: `${Math.min(audioLevel * 100 * 3, 100)}%` }}
+          />
+        </div>
+      )}
     </div>
   );
 };

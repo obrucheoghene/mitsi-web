@@ -7,6 +7,8 @@ export interface SettingsSlice {
   toggle: () => void;
   notifications: NotificationSettings;
   toggleNotification: (notification: keyof NotificationSettings) => void;
+  noiseSuppression: boolean;
+  toggleNoiseSuppression: () => void;
 }
 
 export const createSettingsSlice: StateCreator<
@@ -16,9 +18,15 @@ export const createSettingsSlice: StateCreator<
   SettingsSlice
 > = set => ({
   open: false,
+  noiseSuppression: true,
   toggle: () =>
     set(state => {
       state.settings.open = !state.settings.open;
+      return state;
+    }),
+  toggleNoiseSuppression: () =>
+    set(state => {
+      state.settings.noiseSuppression = !state.settings.noiseSuppression;
       return state;
     }),
   notifications: {

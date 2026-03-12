@@ -192,6 +192,10 @@ export const useRoom = () => {
         roomActions.setRecording((args as { recording: boolean }).recording);
       },
 
+      [Actions.RoomLockChanged]: async args => {
+        roomActions.setLocked((args as { locked: boolean }).locked);
+      },
+
       // Waiter is admitted by host — proceed to join the room
       [Actions.Admitted]: async () => {
         roomActions.setAccess(Access.Allowed);

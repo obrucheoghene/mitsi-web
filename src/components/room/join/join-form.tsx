@@ -85,12 +85,11 @@ const JoinForm = () => {
         roomActions.setAccess(Access.Allowed);
       }
     } catch (error) {
-      if (error instanceof Error) {
-        toast.error(error.message, {
-          richColors: true,
-          position: 'top-right',
-        });
-      }
+      const message = error instanceof Error ? error.message : String(error);
+      toast.error(message, {
+        richColors: true,
+        position: 'top-right',
+      });
     }
   };
 

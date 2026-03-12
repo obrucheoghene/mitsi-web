@@ -20,6 +20,7 @@ import {
   useMicDevices,
   useSettingsActions,
   useSettingsNotification,
+  useSettingsNoiseSuppression,
   useSettingsOpen,
 } from '@/store/conf/hooks';
 import {
@@ -75,6 +76,16 @@ const DeviceSettings: FC<{
   const cameraDevices = useCameraDevices();
   const micDeviceId = useMicDeviceId();
   const micDevices = useMicDevices();
+  const noiseSuppression = useSettingsNoiseSuppression();
+  const settingsActions = useSettingsActions();
+  const { getTrack } = useMedia();
+
+  // Apply noiseSuppression constraint to the live mic track whenever toggled
+  React.useEffect(() => {
+    const track = getTrack('mic');
+    if (!track) return;
+    track.applyConstraints({ noiseSuppression }).catch(() => {});
+  }, [noiseSuppression, getTrack]);
 
   // Speaker output state — enumerate audiooutput devices
   const [speakerDevices, setSpeakerDevices] = React.useState<MediaDeviceInfo[]>([]);
@@ -140,6 +151,21 @@ const DeviceSettings: FC<{
             onChange={e => onMicVolumeChange(parseInt(e.target.value))}
             className="flex-1 h-1 bg-slate-700 rounded-lg appearance-none cursor-pointer accent-blue-500"
           />
+        </div>
+
+        {/* Noise suppression toggle */}
+        <div className="flex items-center justify-between mt-3">
+          <span className="text-slate-400 text-sm">Noise suppression</span>
+          <button
+            onClick={settingsActions.toggleNoiseSuppression}
+            className={`relative w-10 h-5 rounded-full transition-colors ${
+              noiseSuppression ? 'bg-blue-600' : 'bg-slate-700'
+            }`}
+          >
+            <div className={`absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform ${
+              noiseSuppression ? 'translate-x-5' : ''
+            }`} />
+          </button>
         </div>
       </div>
 
