@@ -1,9 +1,9 @@
 import { Typography } from '@/components/typography';
 import { usePeerOthersById, usePeerMe } from '@/store/conf/hooks';
-import { Tag } from '@/types';
+import { Role, Tag } from '@/types';
 import { Actions } from '@/types/actions';
 import { useSignaling } from '@/hooks/use-signaling';
-import { MicOff, UserX } from 'lucide-react';
+import { MicOff, UserX, Shield } from 'lucide-react';
 
 const ParticipantItem = ({ peerId }: { peerId: string }) => {
   const peerData = usePeerOthersById(peerId);
@@ -14,6 +14,9 @@ const ParticipantItem = ({ peerId }: { peerId: string }) => {
     peerMe?.tag === Tag.Host ||
     peerMe?.tag === Tag.Cohost ||
     peerMe?.tag === Tag.Moderator;
+
+  const isHost = peerMe?.tag === Tag.Host;
+  const isCohost = peerData?.tag === Tag.Cohost;
 
   const forceMute = () => {
     signalingService?.sendMessage({
@@ -28,6 +31,15 @@ const ParticipantItem = ({ peerId }: { peerId: string }) => {
       args: { peerId },
     });
   };
+
+  const toggleCohost = () => {
+    signalingService?.sendMessage({
+      action: isCohost ? Actions.RemoveRole : Actions.AddRole,
+      args: { peerId, role: Role.Moderator, tag: Tag.Cohost },
+    });
+  };
+
+  if (!peerData) return null;
 
   return (
     <div className="flex gap-x-3 items-center group">
@@ -44,6 +56,19 @@ const ParticipantItem = ({ peerId }: { peerId: string }) => {
       </div>
       {isModerator && (
         <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          {isHost && (
+            <button
+              onClick={toggleCohost}
+              title={isCohost ? 'Remove co-host' : 'Make co-host'}
+              className={`p-1 rounded transition-colors ${
+                isCohost
+                  ? 'text-blue-400 hover:bg-gray-600 hover:text-white'
+                  : 'text-gray-400 hover:bg-gray-600 hover:text-white'
+              }`}
+            >
+              <Shield size={14} />
+            </button>
+          )}
           <button
             onClick={forceMute}
             title="Mute"

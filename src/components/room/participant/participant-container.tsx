@@ -8,6 +8,7 @@ import {
   useWaiters,
   useWaiterCount,
   useWaitersActions,
+  usePeerIds,
 } from '@/store/conf/hooks';
 import { Search } from 'lucide-react';
 import ParticipantItem from './participant-item';
@@ -28,6 +29,7 @@ const ParticipantContainer = () => {
   const peerOtherIds = usePeerOthersKeys();
   const peerCount = usePeerCount();
   const peerMe = usePeerMe();
+  const peerIds = usePeerIds();
   const waiters = useWaiters();
   const waiterCount = useWaiterCount();
   const waitersActions = useWaitersActions();
@@ -39,6 +41,18 @@ const ParticipantContainer = () => {
     peerMe?.tag === Tag.Host ||
     peerMe?.tag === Tag.Cohost ||
     peerMe?.tag === Tag.Moderator;
+
+  const muteAll = () => {
+    if (!peerIds.length) return;
+    signalingService?.sendMessage({
+      action: Actions.Mute,
+      args: { peerIds },
+    });
+  };
+
+  const lowerAllHands = () => {
+    signalingService?.sendMessage({ action: Actions.LowerHands });
+  };
 
   const admitAll = () => {
     if (!waiters.length) return;
@@ -96,6 +110,24 @@ const ParticipantContainer = () => {
               placeholder="Search for a participant..."
             />
           </div>
+          {isModerator && peerIds.length > 0 && (
+            <div className="flex gap-2">
+              <Button
+                onClick={muteAll}
+                variant="ghost"
+                className="flex-1 h-7 text-xs text-gray-400 hover:text-white hover:bg-gray-700/60"
+              >
+                Mute All
+              </Button>
+              <Button
+                onClick={lowerAllHands}
+                variant="ghost"
+                className="flex-1 h-7 text-xs text-gray-400 hover:text-white hover:bg-gray-700/60"
+              >
+                Lower All Hands
+              </Button>
+            </div>
+          )}
           <div className="flex flex-col gap-3 overflow-y-auto h-full">
             <MyParticipantItem />
             {useVirtualScrolling ? (
