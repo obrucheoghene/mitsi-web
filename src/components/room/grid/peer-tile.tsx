@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, memo } from 'react';
-import { Hand, Mic, MicOff } from 'lucide-react';
+import { Hand, Mic, MicOff, Pin } from 'lucide-react';
 import type { Layout } from '@/types';
 import { cn, getInitials } from '@/lib/utils';
 import {
@@ -7,6 +7,8 @@ import {
   usePeerMediasById,
   usePeerOthersById,
   useIsSpeaking,
+  usePeerSelectedId,
+  usePeerActions,
 } from '@/store/conf/hooks';
 import { useMedia } from '@/hooks/use-media';
 import { useViewportQuality } from '@/hooks/use-viewport-quality';
@@ -25,6 +27,9 @@ export const PeerTile: React.FC<PeerTileProps> = ({ peerId, layout }) => {
   const media = usePeerMediasById(peerId);
   const peerCondition = usePeerConditionsById(peerId);
   const isSpeaking = useIsSpeaking(peerId);
+  const selectedId = usePeerSelectedId();
+  const peerActions = usePeerActions();
+  const isPinned = selectedId === peerId;
 
   // Intersection observer for viewport visibility
   useEffect(() => {
@@ -71,10 +76,12 @@ export const PeerTile: React.FC<PeerTileProps> = ({ peerId, layout }) => {
   return (
     <div
       ref={tileRef}
+      onDoubleClick={() => peerActions.setSelectedId(isPinned ? null : peerId)}
       className={cn(
-        `bg-linear-to-br from-white/5 to-white/2 border  border-white/10 backdrop-blur-xl
-        rounded-lg overflow-hidden flex items-center relative transition-all duration-300 ease-in-out`,
-        isSpeaking && ' border-blue-500'
+        `bg-linear-to-br from-white/5 to-white/2 border border-white/10 backdrop-blur-xl
+        rounded-lg overflow-hidden flex items-center relative transition-all duration-300 ease-in-out group cursor-pointer`,
+        isSpeaking && 'border-blue-500',
+        isPinned && 'border-yellow-400/60'
       )}
       style={{ width: `${layout.width}px`, height: `${layout.height}px` }}
     >
@@ -111,6 +118,14 @@ export const PeerTile: React.FC<PeerTileProps> = ({ peerId, layout }) => {
         ) : (
           <MicOff className="w-4 h-4 text-red-400" />
         )}
+      </div>
+
+      {/* Pin icon — shown on hover or when pinned */}
+      <div className={cn(
+        'absolute top-2 left-2 z-10 p-1 rounded-md bg-black/40 transition-opacity',
+        isPinned ? 'opacity-100' : 'opacity-0 group-hover:opacity-100'
+      )}>
+        <Pin size={12} className={isPinned ? 'text-yellow-400 fill-yellow-400' : 'text-white'} />
       </div>
 
       {/* Name Bar */}
