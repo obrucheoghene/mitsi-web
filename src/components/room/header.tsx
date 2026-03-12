@@ -1,13 +1,18 @@
-const Header = () => {
-  return (
-    <div className="flex items-center justify-between px-4 py-0  top-0 left-0 right-0 z-20">
-      {/* <img src={Assets.logo} alt="Logo" className=" h-4" /> */}
+import { Badge } from '@/components/ui/badge';
+import { useRoomRecording } from '@/store/conf/hooks';
 
-      <div className="flex items-center ">
-        {/* <Badge className="bg-red-600 hover:bg-red-700 text-white ">
-          <div className="w-2 h-2 bg-white rounded-full mr-1 animate-pulse" />
-          <span className=" text-xs">REC</span>
-        </Badge> */}
+const Header = () => {
+  const recording = useRoomRecording();
+
+  return (
+    <div className="flex items-center justify-between px-4 py-0 top-0 left-0 right-0 z-20">
+      <div className="flex items-center">
+        {recording && (
+          <Badge className="bg-red-600 hover:bg-red-700 text-white">
+            <div className="w-2 h-2 bg-white rounded-full mr-1 animate-pulse" />
+            <span className="text-xs">REC</span>
+          </Badge>
+        )}
       </div>
     </div>
   );

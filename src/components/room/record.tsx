@@ -1,31 +1,26 @@
-import { useState } from 'react';
 import { Circle } from 'lucide-react';
 import { Button } from '../ui/button';
 import { cn } from '@/lib/utils';
-import { usePeerMe } from '@/store/conf/hooks';
-import { useSignaling } from '@/hooks/use-signaling';
-import { Actions } from '@/types/actions';
-import { Tag } from '@/types';
+import { usePeerMe, useRoomRecording, useCautionActions } from '@/store/conf/hooks';
+import { Tag, CautionType } from '@/types';
 
 const Record = () => {
-  const { signalingService } = useSignaling();
   const peerMe = usePeerMe();
-  const [recording, setRecording] = useState(false);
+  const recording = useRoomRecording();
+  const cautionActions = useCautionActions();
 
   const isHost = peerMe?.tag === Tag.Host;
   if (!isHost) return null;
 
-  const toggleRecording = () => {
-    signalingService?.sendMessage({
-      action: Actions.Record,
-      args: { recording: !recording },
-    });
-    setRecording(prev => !prev);
+  const handleClick = () => {
+    cautionActions.set(
+      recording ? CautionType.StopRecording : CautionType.StartRecording
+    );
   };
 
   return (
     <Button
-      onClick={toggleRecording}
+      onClick={handleClick}
       variant="ghost"
       size="icon"
       title={recording ? 'Stop recording' : 'Start recording'}
