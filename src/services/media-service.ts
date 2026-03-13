@@ -327,10 +327,14 @@ class MediaService {
     this.setTrack(null, source);
   }
 
-  async replaceProducerTrack(track: MediaStreamTrack, source: ProducerSource) {
+  async replaceProducerTrack(
+    track: MediaStreamTrack,
+    source: ProducerSource,
+    updateStoredTrack = true
+  ) {
     const producer = this.producers.get(source);
     if (!producer) return;
-    this.setTrack(track, source);
+    if (updateStoredTrack) this.setTrack(track, source);
     await producer.replaceTrack({ track: track.clone() });
   }
 

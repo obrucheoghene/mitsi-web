@@ -206,13 +206,21 @@ export const useSettingsNotification = () =>
   useConfStore(state => state.settings.notifications);
 export const useSettingsNoiseSuppression = () =>
   useConfStore(state => state.settings.noiseSuppression);
-
+export const useSettingsBackgroundMode = () =>
+  useConfStore(state => state.settings.backgroundMode);
+export const useSettingsBackgroundImage = () =>
+  useConfStore(state => state.settings.backgroundImage);
+export const useBackgroundTrackVersion = () =>
+  useConfStore(state => state.settings.backgroundTrackVersion);
 export const useSettingsActions = () =>
   useMemo(
     () => ({
       toggle: useConfStore.getState().settings.toggle,
       toggleNotification: useConfStore.getState().settings.toggleNotification,
       toggleNoiseSuppression: useConfStore.getState().settings.toggleNoiseSuppression,
+      setBackgroundMode: useConfStore.getState().settings.setBackgroundMode,
+      setBackgroundImage: useConfStore.getState().settings.setBackgroundImage,
+      bumpBackgroundTrackVersion: useConfStore.getState().settings.bumpBackgroundTrackVersion,
     }),
     []
   );

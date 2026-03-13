@@ -44,7 +44,7 @@ const Header = () => {
             variant="ghost"
             size="sm"
             title={locked ? 'Unlock room' : 'Lock room'}
-            className={locked ? 'text-yellow-400 hover:text-yellow-300' : 'text-gray-400 hover:text-white'}
+            className={locked ? 'cursor-pointer text-yellow-400 hover:text-yellow-300 hover:bg-white/10' : 'cursor-pointer text-gray-400 hover:text-white hover:bg-white/10'}
           >
             {locked ? <Lock size={16} /> : <Unlock size={16} />}
           </Button>
