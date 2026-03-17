@@ -34,6 +34,7 @@ const MyTile: React.FC<PeerTileProps> = ({ layout }) => {
     const track = getActiveOutputTrack() ?? getTrack('camera');
     if (!track) return;
     videoRef.current.srcObject = new MediaStream([track]);
+    videoRef.current.play().catch(() => {});
   }, [cameraOn, cameraDeviceId, getTrack, backgroundTrackVersion]);
 
   if (!peerMe) return null;
