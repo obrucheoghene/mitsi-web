@@ -9,7 +9,7 @@ import ReactionDisplay from '@/components/room/reaction-display';
 import ConnectionQualityManager from '@/components/room/connection-quality-manager';
 import { useKeyboardShortcuts } from '@/hooks/use-keyboard-shortcuts';
 import { useBackground } from '@/hooks/use-background';
-// import PerformanceMonitor from '@/components/room/debug/performance-monitor';
+import PerformanceMonitor from '@/components/room/debug/performance-monitor';
 
 export const Conference: React.FC = () => {
   useKeyboardShortcuts();
@@ -29,7 +29,7 @@ export const Conference: React.FC = () => {
 
         {/* Background Services */}
         <ConnectionQualityManager />
-        {/* <PerformanceMonitor /> */}
+        <PerformanceMonitor />
       </div>
     </div>
   );
